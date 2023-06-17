@@ -37,6 +37,9 @@ if [[ $MESSAGE -gt 0 ]]; then
   exit 0
 fi
 
+LAST_COMMIT=$(git log -1)
+echo "LAST COMMIT:$LAST_COMMIT"
+
 PR_TITLE=$(git log -1 --format="%s" $GITHUB_SHA)
 echo "PR_TITLE:$PR_TITLE"
 
