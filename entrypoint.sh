@@ -24,6 +24,9 @@ git_cmd() {
   fi
 }
 
+echo "work around permission issue"
+git config --global --add safe.directory /github/workspace
+
 echo "INPUT_PR_BRANCH:$INPUT_PR_BRANCH"
 echo "GITHUB_SHA:$GITHUB_SHA"
 
