@@ -24,8 +24,13 @@ git_cmd() {
   fi
 }
 
+echo "INPUT_PR_BRANCH:$INPUT_PR_BRANCH"
+echo "GITHUB_SHA:$GITHUB_SHA"
+
 PR_BRANCH="auto-$INPUT_PR_BRANCH-$GITHUB_SHA"
+echo "PR_BRANCH:$PR_BRANCH"
 MESSAGE=$(git log -1 $GITHUB_SHA | grep "AUTO" | wc -l)
+echo "MESSAGE:$MESSAGE"
 
 if [[ $MESSAGE -gt 0 ]]; then
   echo "Autocommit, NO ACTION"
@@ -33,6 +38,7 @@ if [[ $MESSAGE -gt 0 ]]; then
 fi
 
 PR_TITLE=$(git log -1 --format="%s" $GITHUB_SHA)
+echo "PR_TITLE:$PR_TITLE"
 
 git_setup
 git_cmd git remote update
