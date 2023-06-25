@@ -9,6 +9,10 @@ inputs:
     description: 'Labels for the new PR'
     required: false
     default: 'autocreated'
+  pr_body:
+    description: 'Description of PR'
+    required: false
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'
