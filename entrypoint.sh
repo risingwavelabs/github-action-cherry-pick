@@ -75,5 +75,5 @@ if [ $? -eq 0 ]; then
   git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "${PR_MESSAGE}" -r "${GITHUB_ACTOR}"
 else
   echo "git cherry-pick failed. We will create an issue for it."
-  git_cmd hub issue create -m "cherrypick ${PR_TITLE} to ${PR_BRNACH}" -a "${GITHUB_ACTOR}" -l "cherry-pick"
+  git_cmd hub issue create -m "cherrypick ${PR_TITLE} to ${PR_BRANCH}" -a "${GITHUB_ACTOR}" -l "cherry-pick"
 fi
