@@ -28,8 +28,11 @@ EOF
 
 git_cmd() {
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
+    echo "This is a dry run. We just output the command:"
     echo $@
   else
+    echo "This is NOT a dry run. We output and execute the command:"
+    echo $@
     eval $@
   fi
 }
