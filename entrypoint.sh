@@ -4,6 +4,7 @@ pull_request_message() {
   local message=$(cat <<-END
 ${PR_TITLE} AUTO
 
+
 ${INPUT_PR_BODY}
 END
 )
