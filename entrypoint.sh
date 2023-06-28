@@ -1,13 +1,5 @@
 #!/bin/sh -l
 
-pull_request_message() {
-  local message=$(cat <<-END
-${PR_TITLE} AUTO\n\n${INPUT_PR_BODY}
-END
-)
-  echo "$message"
-}
-
 git_setup() {
   cat <<- EOF > $HOME/.netrc
 		machine github.com
@@ -58,9 +50,6 @@ PR_TITLE=$(git log -1 --format="%s" $GITHUB_SHA)
 echo "PR_TITLE:$PR_TITLE"
 echo "INPUT_PR_BODY:${INPUT_PR_BODY}"
 
-PR_MESSAGE=$(pull_request_message)
-echo "PR_MESSAGE:$PR_MESSAGE"
-
 git_setup
 git_cmd git remote update
 git_cmd git fetch --all
@@ -70,7 +59,7 @@ git_cmd git cherry-pick "${GITHUB_SHA}"
 if [ $? -eq 0 ]; then
   echo "git cherry-pick succeeded. We will create a pull request for it."
   git_cmd git push -u origin "${PR_BRANCH}"
-  git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "\"${PR_MESSAGE}\"" -r "${GITHUB_ACTOR}"
+  git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "\"${PR_TITLE}\"" -m "\"${INPUT_PR_BODY}\"" -r "${GITHUB_ACTOR}"
 else
   echo "git cherry-pick failed. We will create an issue for it."
   git_cmd hub issue create -m "\"cherrypick ${PR_TITLE} to branch \`${INPUT_PR_BRANCH}\`\"" -a "${GITHUB_ACTOR}" -l "cherry-pick"
