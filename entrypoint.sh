@@ -2,10 +2,7 @@
 
 pull_request_message() {
   local message=$(cat <<-END
-${PR_TITLE} AUTO
-
-
-${INPUT_PR_BODY}
+${PR_TITLE} AUTO\n\n${INPUT_PR_BODY}
 END
 )
   echo "$message"
