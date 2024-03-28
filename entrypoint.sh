@@ -50,6 +50,9 @@ PR_TITLE=$(git log -1 --format="%s" $GITHUB_SHA)
 echo "PR_TITLE:$PR_TITLE"
 echo "INPUT_PR_BODY:${INPUT_PR_BODY}"
 
+# Add GITHUB_SHA to the PR/issue body
+INPUT_PR_BODY="${INPUT_PR_BODY}\n\nThis PR/issue was created by cherry-pick action from commit ${GITHUB_SHA}."
+
 git_setup
 git_cmd git remote update
 git_cmd git fetch --all
