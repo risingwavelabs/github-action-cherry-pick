@@ -62,8 +62,8 @@ git_cmd git cherry-pick "${GITHUB_SHA}"
 if [ $? -eq 0 ]; then
   echo "git cherry-pick succeeded. We will create a pull request for it."
   git_cmd git push -u origin "${PR_BRANCH}"
-  git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "'${PR_TITLE}'" -m "'${INPUT_PR_BODY}'" -r "${GITHUB_ACTOR}"
+  git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${PR_OWNER}" -m "'${PR_TITLE}'" -m "'${INPUT_PR_BODY}'" -r "${PR_OWNER}"
 else
   echo "git cherry-pick failed. We will create an issue for it."
-  git_cmd hub issue create -m "'cherrypick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}'" -m "'${INPUT_PR_BODY}'" -a "${GITHUB_ACTOR}" -l "${INPUT_PR_LABELS}"
+  git_cmd hub issue create -m "'cherrypick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}'" -m "'${INPUT_PR_BODY}'" -a "${PR_OWNER}" -l "${INPUT_PR_LABELS}"
 fi

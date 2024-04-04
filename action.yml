@@ -13,6 +13,9 @@ inputs:
     description: 'Description of PR'
     required: false
     default: ''
+  pr_owner:
+    description: 'The person who opened the PR, the person who is the author of the first commit.'
+    required: true
 runs:
   using: 'docker'
   image: 'Dockerfile'
