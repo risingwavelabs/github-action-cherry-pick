@@ -68,7 +68,7 @@ echo "PR_TITLE:$PR_TITLE"
 echo "INPUT_PR_BODY:${INPUT_PR_BODY}"
 
 # Add GITHUB_SHA to the PR/issue body
-INPUT_PR_BODY="${INPUT_PR_BODY}\n\nThis PR/issue was created by cherry-pick action from commit ${GITHUB_SHA}."
+INPUT_PR_BODY=$(printf "%s\n\nThis PR/issue was created by cherry-pick action from commit %s.", "${INPUT_PR_BODY}", "${GITHUB_SHA}")
 
 git_setup
 git_cmd git remote update
