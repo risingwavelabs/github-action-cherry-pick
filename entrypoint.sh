@@ -50,7 +50,7 @@ git config --global --add safe.directory /github/workspace
 echo "INPUT_PR_BRANCH:$INPUT_PR_BRANCH"
 echo "GITHUB_SHA:$GITHUB_SHA"
 
-PR_BRANCH="auto-$INPUT_PR_BRANCH-$GITHUB_SHA"
+PR_BRANCH="auto-$INPUT_PR_BRANCH-$GITHUB_SHA-$(date +%s)"
 echo "PR_BRANCH:$PR_BRANCH"
 MESSAGE=$(git log -1 "$GITHUB_SHA" | grep -c "AUTO")
 echo "MESSAGE:$MESSAGE"
