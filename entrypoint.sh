@@ -63,6 +63,9 @@ fi
 LAST_COMMIT=$(git log -1)
 echo "LAST COMMIT:$LAST_COMMIT"
 
+# fetch the commit in case of shallow clone
+git_cmd git fetch origin "${GITHUB_SHA}" --depth=2
+
 PR_TITLE=$(git log -1 --format="%s" "$GITHUB_SHA")
 echo "PR_TITLE:$PR_TITLE"
 echo "INPUT_PR_BODY:${INPUT_PR_BODY}"
