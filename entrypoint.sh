@@ -77,6 +77,9 @@ git_setup
 git_cmd git remote update
 git_cmd git fetch --all
 git_cmd git checkout -b "${PR_BRANCH}" origin/"${INPUT_PR_BRANCH}"
+
+# TODO: this only works for "squash and merge", otherwise we may encounter:
+#   error: commit <sha> is a merge but no -m option was given.
 git_cmd git cherry-pick "${GITHUB_SHA}"
 
 # Check the exit code of `git cherry-pick`
