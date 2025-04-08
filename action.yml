@@ -13,6 +13,10 @@ inputs:
     description: 'Description of PR'
     required: false
     default: ''
+  commit_sha:
+    description: 'Commit SHA to cherry-pick (defaults to GITHUB_SHA if not provided)'
+    required: false
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'

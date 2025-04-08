@@ -47,12 +47,20 @@ git_cmd() {
 echo "work around permission issue"
 git config --global --add safe.directory /github/workspace
 
-echo "INPUT_PR_BRANCH:$INPUT_PR_BRANCH"
-echo "GITHUB_SHA:$GITHUB_SHA"
+# Determine which commit SHA to use - custom or default
+if [[ -n "${INPUT_COMMIT_SHA}" ]]; then
+  COMMIT_SHA="${INPUT_COMMIT_SHA}"
+  echo "Using provided commit SHA: ${COMMIT_SHA}"
+else
+  COMMIT_SHA="${GITHUB_SHA}"
+  echo "Using default GITHUB_SHA: ${COMMIT_SHA}"
+fi
 
-PR_BRANCH="auto-$INPUT_PR_BRANCH-$GITHUB_SHA-$(date +%s)"
+echo "INPUT_PR_BRANCH:$INPUT_PR_BRANCH"
+
+PR_BRANCH="auto-$INPUT_PR_BRANCH-$COMMIT_SHA-$(date +%s)"
 echo "PR_BRANCH:$PR_BRANCH"
-MESSAGE=$(git log -1 "$GITHUB_SHA" | grep -c "AUTO")
+MESSAGE=$(git log -1 "$COMMIT_SHA" | grep -c "AUTO")
 echo "MESSAGE:$MESSAGE"
 
 if [[ "$MESSAGE" -gt 0 ]]; then
@@ -64,20 +72,20 @@ LAST_COMMIT=$(git log -1)
 echo "LAST COMMIT:$LAST_COMMIT"
 
 # fetch the commit in case of shallow clone
-git_cmd git fetch origin "${GITHUB_SHA}" --depth=2
+git_cmd git fetch origin "${COMMIT_SHA}" --depth=2
 
-PR_TITLE=$(git log -1 --format="%s" "$GITHUB_SHA")
+PR_TITLE=$(git log -1 --format="%s" "$COMMIT_SHA")
 echo "PR_TITLE:$PR_TITLE"
 echo "INPUT_PR_BODY:${INPUT_PR_BODY}"
 
 # Add GITHUB_SHA to the PR/issue body
-INPUT_PR_BODY=$(printf "%s\n\nThis PR/issue was created by cherry-pick action from commit %s.", "${INPUT_PR_BODY}", "${GITHUB_SHA}")
+INPUT_PR_BODY=$(printf "%s\n\nThis PR/issue was created by cherry-pick action from commit %s.", "${INPUT_PR_BODY}", "${COMMIT_SHA}")
 
 git_setup
 git_cmd git remote update
 git_cmd git fetch --all
 git_cmd git checkout -b "${PR_BRANCH}" origin/"${INPUT_PR_BRANCH}"
-git_cmd git cherry-pick "${GITHUB_SHA}"
+git_cmd git cherry-pick "${COMMIT_SHA}"
 
 # Check the exit code of `git cherry-pick`
 # shellcheck disable=SC2181
