@@ -84,6 +84,13 @@ INPUT_PR_BODY=$(printf "%s\n\nThis PR/issue was created by cherry-pick action fr
 git_setup
 git_cmd git remote update
 git_cmd git fetch --all
+
+# Check if the commit is already in the target branch
+if git_cmd git branch -a --contains "${COMMIT_SHA}" | grep -q "remotes/origin/${INPUT_PR_BRANCH}$"; then
+  echo "Commit ${COMMIT_SHA} already exists in branch ${INPUT_PR_BRANCH}, nothing to do"
+  exit 0
+fi
+
 git_cmd git checkout -b "${PR_BRANCH}" origin/"${INPUT_PR_BRANCH}"
 git_cmd git cherry-pick "${COMMIT_SHA}"
 
