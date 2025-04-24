@@ -81,6 +81,16 @@ echo "INPUT_PR_BODY:${INPUT_PR_BODY}"
 # Add GITHUB_SHA to the PR/issue body
 INPUT_PR_BODY=$(printf "%s\n\nThis PR/issue was created by cherry-pick action from commit %s.", "${INPUT_PR_BODY}", "${COMMIT_SHA}")
 
+COMMIT_AUTHOR=$(git log -1 --format="%an" "$GITHUB_SHA")
+echo "COMMIT_AUTHOR:$COMMIT_AUTHOR"
+
+# Combine authors for assignment, if they're different
+ASSIGNEES="${GITHUB_ACTOR}"
+if [ "$COMMIT_AUTHOR" != "$GITHUB_ACTOR" ]; then
+    ASSIGNEES="${GITHUB_ACTOR},${COMMIT_AUTHOR}"
+fi
+echo "ASSIGNEES:$ASSIGNEES"
+
 git_setup
 git_cmd git remote update
 git_cmd git fetch --all
@@ -99,8 +109,8 @@ git_cmd git cherry-pick "${COMMIT_SHA}"
 if [ $? -eq 0 ]; then
   echo "git cherry-pick succeeded. We will create a pull request for it."
   git_cmd git push -u origin "${PR_BRANCH}"
-  git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "${PR_TITLE}" -m "${INPUT_PR_BODY}" -r "${GITHUB_ACTOR}"
+  git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${ASSIGNEES}" -m "${PR_TITLE}" -m "${INPUT_PR_BODY}" -r "${ASSIGNEES}"
 else
   echo "git cherry-pick failed. We will create an issue for it."
-  git_cmd hub issue create -m "cherry-pick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}" -m "${INPUT_PR_BODY}" -a "${GITHUB_ACTOR}" -l "${INPUT_PR_LABELS}"
+  git_cmd hub issue create -m "cherry-pick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}" -m "${INPUT_PR_BODY}" -a "${ASSIGNEES}" -l "${INPUT_PR_LABELS}"
 fi
