@@ -35,11 +35,11 @@ print_cmd() {
 git_cmd() {
   # shellcheck disable=SC3010
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    echo "This is a dry run. We just output the command:"
-    print_cmd "$@"
+    echo "This is a dry run. We just output the command:" >&2
+    print_cmd "$@" >&2
   else
-    echo "This is NOT a dry run. We output and execute the command:"
-    print_cmd "$@"
+    echo "This is NOT a dry run. We output and execute the command:" >&2
+    print_cmd "$@" >&2
     "$@"
   fi
 }
@@ -102,5 +102,21 @@ if [ $? -eq 0 ]; then
   git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "${PR_TITLE}" -m "${INPUT_PR_BODY}" -r "${GITHUB_ACTOR}"
 else
   echo "git cherry-pick failed. We will create an issue for it."
-  git_cmd hub issue create -m "cherry-pick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}" -m "${INPUT_PR_BODY}" -a "${GITHUB_ACTOR}" -l "${INPUT_PR_LABELS}"
+  ISSUE_URL=$(git_cmd hub issue create -m "cherry-pick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}" -m "${INPUT_PR_BODY}" -a "${GITHUB_ACTOR}" -l "${INPUT_PR_LABELS}")
+  echo $ISSUE_URL
+  CLEAN_URL="${ISSUE_URL//[[:space:]]/}"
+  if [[ -n "$CLEAN_URL" ]]; then
+    ISSUE_NUMBER=${ISSUE_URL##*/}
+    echo "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees"
+    # https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/create-a-pr#using-the-rest-api
+    # https://hub.github.com/hub-api.1.html
+    hub api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
+      "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees" --input - <<< '{
+      "assignees": ["copilot-swe-agent[bot]"],
+      "agent_assignment": {
+        "custom_instructions": "Use commit message as PR title and issue description as PR description",
+        "base_branch": "'"${INPUT_PR_BRANCH}"'"
+      }
+    }'
+  fi
 fi
