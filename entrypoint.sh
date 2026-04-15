@@ -114,7 +114,7 @@ else
       "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees" --input - <<< '{
       "assignees": ["copilot-swe-agent[bot]"],
       "agent_assignment": {
-        "custom_instructions": "Use commit message as PR title and issue description as PR description",
+        "custom_instructions": "Do not edit yourself before using `git cherry-pick` first. Then resolve conflict. Avoid unnecessary improvements and keep the diff as close to original as possible",
         "base_branch": "'"${INPUT_PR_BRANCH}"'"
       }
     }'
