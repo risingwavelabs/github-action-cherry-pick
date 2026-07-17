@@ -14,8 +14,8 @@ developers works on but we want to push the changes to the Release branches too.
 * Checkout the other branch, Y
 * Create a new pr branch Z on the branch Y
 * Cherry Pick the commits from X into Z
-* Push the branch and create the PR on base Y
-* If the cherry-pick conflicts, create an issue with conflict-resolution instructions and assign it to Jarvis
+* If the cherry-pick succeeds, push the branch and create the PR on base Y
+* If the cherry-pick conflicts, create an issue with conflict-resolution instructions and assign it to Jarvis instead
 * PR title will be prefixed with `AUTO`
 
 #### Conditions:

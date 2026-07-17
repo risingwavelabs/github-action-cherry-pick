@@ -110,7 +110,7 @@ Run \`git cherry-pick ${COMMIT_SHA}\` first, then resolve any conflicts. Avoid u
   echo "$ISSUE_URL"
   CLEAN_URL="${ISSUE_URL//[[:space:]]/}"
   if [[ -n "$CLEAN_URL" ]]; then
-    ISSUE_NUMBER=${ISSUE_URL##*/}
+    ISSUE_NUMBER=${CLEAN_URL##*/}
     echo "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees"
     # https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-agent-apps#starting-an-agent-from-an-issue
     # https://hub.github.com/hub-api.1.html
