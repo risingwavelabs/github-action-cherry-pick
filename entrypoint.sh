@@ -102,21 +102,21 @@ if [ $? -eq 0 ]; then
   git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "${PR_TITLE}" -m "${INPUT_PR_BODY}" -r "${GITHUB_ACTOR}"
 else
   echo "git cherry-pick failed. We will create an issue for it."
-  ISSUE_URL=$(git_cmd hub issue create -m "cherry-pick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}" -m "${INPUT_PR_BODY}" -a "${GITHUB_ACTOR}" -l "${INPUT_PR_LABELS}")
-  echo $ISSUE_URL
+  CONFLICT_INSTRUCTIONS="## Instructions for Jarvis
+
+Run \`git cherry-pick ${COMMIT_SHA}\` first, then resolve any conflicts. Avoid unnecessary improvements and keep the diff as close to the original commit as possible. Target branch: \`${INPUT_PR_BRANCH}\`."
+  ISSUE_BODY=$(printf "%s\n\n%s" "${INPUT_PR_BODY}" "${CONFLICT_INSTRUCTIONS}")
+  ISSUE_URL=$(git_cmd hub issue create -m "cherry-pick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}" -m "${ISSUE_BODY}" -a "${GITHUB_ACTOR}" -l "${INPUT_PR_LABELS}")
+  echo "$ISSUE_URL"
   CLEAN_URL="${ISSUE_URL//[[:space:]]/}"
   if [[ -n "$CLEAN_URL" ]]; then
-    ISSUE_NUMBER=${ISSUE_URL##*/}
+    ISSUE_NUMBER=${CLEAN_URL##*/}
     echo "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees"
-    # https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/create-a-pr#using-the-rest-api
+    # https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-agent-apps#starting-an-agent-from-an-issue
     # https://hub.github.com/hub-api.1.html
     hub api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
       "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees" --input - <<< '{
-      "assignees": ["copilot-swe-agent[bot]"],
-      "agent_assignment": {
-        "custom_instructions": "Do not edit yourself before using `git cherry-pick` first. Then resolve conflict. Avoid unnecessary improvements and keep the diff as close to original as possible",
-        "base_branch": "'"${INPUT_PR_BRANCH}"'"
-      }
+      "assignees": ["rw-jarvis-bot[bot]"]
     }'
   fi
 fi
