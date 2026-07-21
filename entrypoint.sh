@@ -78,6 +78,14 @@ PR_TITLE=$(git log -1 --format="%s" "$COMMIT_SHA")
 echo "PR_TITLE:$PR_TITLE"
 echo "INPUT_PR_BODY:${INPUT_PR_BODY}"
 
+# Prefer the explicit source PR input. Keep compatibility with existing callers
+# whose body uses "Cherry picking #N onto branch ...".
+SOURCE_PR_NUMBER="${INPUT_SOURCE_PR_NUMBER:-}"
+# shellcheck disable=SC3010
+if [[ -z "${SOURCE_PR_NUMBER}" && "${INPUT_PR_BODY}" =~ Cherry[[:space:]]picking[[:space:]]#([0-9]+)[[:space:]]onto[[:space:]]branch ]]; then
+  SOURCE_PR_NUMBER="${BASH_REMATCH[1]}"
+fi
+
 # Add GITHUB_SHA to the PR/issue body
 INPUT_PR_BODY=$(printf "%s\n\nThis PR/issue was created by cherry-pick action from commit %s.", "${INPUT_PR_BODY}", "${COMMIT_SHA}")
 
@@ -106,17 +114,12 @@ else
 
 Run \`git cherry-pick ${COMMIT_SHA}\` first, then resolve any conflicts. Avoid unnecessary improvements and keep the diff as close to the original commit as possible. Target branch: \`${INPUT_PR_BRANCH}\`."
   ISSUE_BODY=$(printf "%s\n\n%s" "${INPUT_PR_BODY}" "${CONFLICT_INSTRUCTIONS}")
+  if [[ "${SOURCE_PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+    JARVIS_MARKER="<!-- jarvis-cherry-pick-conflict:v1 source_pr=${GITHUB_REPOSITORY}#${SOURCE_PR_NUMBER} commit=${COMMIT_SHA} target=${INPUT_PR_BRANCH} -->"
+    ISSUE_BODY=$(printf "%s\n\n%s" "${ISSUE_BODY}" "${JARVIS_MARKER}")
+  else
+    echo "No source PR number was supplied or found in pr_body; creating a human-only conflict issue." >&2
+  fi
   ISSUE_URL=$(git_cmd hub issue create -m "cherry-pick ${PR_TITLE} to branch ${INPUT_PR_BRANCH}" -m "${ISSUE_BODY}" -a "${GITHUB_ACTOR}" -l "${INPUT_PR_LABELS}")
   echo "$ISSUE_URL"
-  CLEAN_URL="${ISSUE_URL//[[:space:]]/}"
-  if [[ -n "$CLEAN_URL" ]]; then
-    ISSUE_NUMBER=${CLEAN_URL##*/}
-    echo "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees"
-    # https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-agent-apps#starting-an-agent-from-an-issue
-    # https://hub.github.com/hub-api.1.html
-    hub api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
-      "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees" --input - <<< '{
-      "assignees": ["rw-jarvis-bot[bot]"]
-    }'
-  fi
 fi
