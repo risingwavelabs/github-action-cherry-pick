@@ -17,6 +17,10 @@ inputs:
     description: 'Commit SHA to cherry-pick (defaults to GITHUB_SHA if not provided)'
     required: false
     default: ''
+  source_pr_number:
+    description: 'Original pull request number used to create a trusted Jarvis conflict task'
+    required: false
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'

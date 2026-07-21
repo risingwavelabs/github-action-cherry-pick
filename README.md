@@ -15,7 +15,7 @@ developers works on but we want to push the changes to the Release branches too.
 * Create a new pr branch Z on the branch Y
 * Cherry Pick the commits from X into Z
 * If the cherry-pick succeeds, push the branch and create the PR on base Y
-* If the cherry-pick conflicts, create an issue with conflict-resolution instructions and assign it to Jarvis instead
+* If the cherry-pick conflicts, create an issue with conflict-resolution instructions and a trusted marker that Jarvis can discover
 * PR title will be prefixed with `AUTO`
 
 #### Conditions:
@@ -34,6 +34,12 @@ CSV Labels to apply on the PR created. Default: `autocreated`
 #### `commit_sha`
 
 The specific commit SHA to cherry-pick. If not provided, it defaults to the triggering commit (`GITHUB_SHA`).
+
+#### `source_pr_number`
+
+The original pull request number. It is written into the conflict issue's Jarvis marker. For compatibility, the action can also extract it from a `pr_body` containing `Cherry picking #N onto branch ...`. If neither is available, the action creates a human-only conflict issue without a Jarvis marker.
+
+Jarvis discovery also requires the issue creator and configured label to match its trusted policy. The action intentionally does not assign the Jarvis GitHub App as an issue assignee; a regular GitHub App bot is not an assignable coding agent.
 
 ## Example usage
 
