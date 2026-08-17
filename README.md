@@ -14,7 +14,7 @@ developers works on but we want to push the changes to the Release branches too.
 * Checkout the other branch, Y
 * Create a new pr branch Z on the branch Y
 * Cherry Pick the commits from X into Z
-* If the cherry-pick succeeds, push the branch and create the PR on base Y
+* If the cherry-pick succeeds, publish the branch through the Git Data API and create the PR on base Y
 * If the cherry-pick conflicts, create an issue with conflict-resolution instructions and assign it to Jarvis instead
 * PR title will be prefixed with `AUTO`
 
@@ -34,6 +34,17 @@ CSV Labels to apply on the PR created. Default: `autocreated`
 #### `commit_sha`
 
 The specific commit SHA to cherry-pick. If not provided, it defaults to the triggering commit (`GITHUB_SHA`).
+
+## Tokens
+
+`GITHUB_TOKEN` is used to create pull requests and issues. Branches are published with
+the Git Data REST API using `GIT_DATA_TOKEN` when it is set, or `GITHUB_TOKEN` as a
+fallback. The publication token needs `contents: write` permission. If the cherry-pick
+changes a workflow file, it also needs permission to create or update workflows.
+
+Using the Git Data API avoids GitHub's server-side workflow scan on `git push` while
+preserving the exact tree produced by the local cherry-pick. The action verifies the
+remote tree SHA before it creates the branch reference.
 
 ## Example usage
 
@@ -58,6 +69,8 @@ jobs:
         pr_branch: '0.1.x'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Optional: use a separate token for publishing Git objects and the branch.
+        GIT_DATA_TOKEN: ${{ github.token }}
         GITBOT_EMAIL: <BOT_EMAIL>
         DRY_RUN: false
 ```
