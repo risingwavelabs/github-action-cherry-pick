@@ -98,7 +98,10 @@ git_cmd git cherry-pick "${COMMIT_SHA}"
 # shellcheck disable=SC2181
 if [ $? -eq 0 ]; then
   echo "git cherry-pick succeeded. We will create a pull request for it."
-  git_cmd git push -u origin "${PR_BRANCH}"
+  if ! git_cmd git push -u origin "${PR_BRANCH}"; then
+    echo "Failed to push ${PR_BRANCH}; skipping pull request creation." >&2
+    exit 1
+  fi
   git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "${PR_TITLE}" -m "${INPUT_PR_BODY}" -r "${GITHUB_ACTOR}"
 else
   echo "git cherry-pick failed. We will create an issue for it."
