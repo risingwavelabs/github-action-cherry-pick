@@ -42,6 +42,9 @@ the Git Data REST API using `GIT_DATA_TOKEN` when it is set, or `GITHUB_TOKEN` a
 fallback. The publication token needs `contents: write` permission. If the cherry-pick
 changes a workflow file, it also needs permission to create or update workflows.
 
+`GITBOT_EMAIL` optionally overrides the committer email. When it is unset, the action
+uses the triggering actor's GitHub noreply address.
+
 Using the Git Data API avoids GitHub's server-side workflow scan on `git push` while
 preserving the exact tree produced by the local cherry-pick. The action verifies the
 remote tree SHA before it creates the branch reference.
@@ -71,6 +74,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # Optional: use a separate token for publishing Git objects and the branch.
         GIT_DATA_TOKEN: ${{ github.token }}
+        # Optional: override the committer email.
         GITBOT_EMAIL: <BOT_EMAIL>
         DRY_RUN: false
 ```
