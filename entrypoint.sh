@@ -4,6 +4,11 @@ set -o errexit
 set -o pipefail
 
 git_setup() {
+  local default_gitbot_email="github-action-cherry-pick@users.noreply.github.com"
+  if [[ -n "${GITHUB_ACTOR_ID:-}" && -n "${GITHUB_ACTOR:-}" ]]; then
+    default_gitbot_email="${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+  fi
+
   cat <<- EOF > "$HOME"/.netrc
 		machine github.com
 		login $GITHUB_ACTOR
@@ -14,7 +19,7 @@ git_setup() {
 EOF
   chmod 600 "$HOME"/.netrc
 
-  git config --global user.email "$GITBOT_EMAIL"
+  git config --global user.email "${GITBOT_EMAIL:-$default_gitbot_email}"
   git config --global user.name "$GITHUB_ACTOR"
   git config --global --add safe.directory /github/workspace
 }
