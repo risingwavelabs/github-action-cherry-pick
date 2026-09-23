@@ -87,7 +87,7 @@ echo "INPUT_PR_BODY:${INPUT_PR_BODY}"
 # whose body uses "Cherry picking #N onto branch ...".
 SOURCE_PR_NUMBER="${INPUT_SOURCE_PR_NUMBER:-}"
 # shellcheck disable=SC3010
-if [[ -z "${SOURCE_PR_NUMBER}" && "${INPUT_PR_BODY}" =~ Cherry[[:space:]]picking[[:space:]]#([0-9]+)[[:space:]]onto[[:space:]]branch ]]; then
+if [[ -z "${SOURCE_PR_NUMBER}" && "${INPUT_PR_BODY}" =~ Cherry[[:space:]]+picking[[:space:]]+#([0-9]+)[[:space:]]+onto[[:space:]]+branch ]]; then
   SOURCE_PR_NUMBER="${BASH_REMATCH[1]}"
 fi
 
