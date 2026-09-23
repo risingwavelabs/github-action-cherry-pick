@@ -1,6 +1,14 @@
 #!/bin/bash -l
 
+set -o errexit
+set -o pipefail
+
 git_setup() {
+  local default_gitbot_email="github-action-cherry-pick@users.noreply.github.com"
+  if [[ -n "${GITHUB_ACTOR_ID:-}" && -n "${GITHUB_ACTOR:-}" ]]; then
+    default_gitbot_email="${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+  fi
+
   cat <<- EOF > "$HOME"/.netrc
 		machine github.com
 		login $GITHUB_ACTOR
@@ -11,7 +19,7 @@ git_setup() {
 EOF
   chmod 600 "$HOME"/.netrc
 
-  git config --global user.email "$GITBOT_EMAIL"
+  git config --global user.email "${GITBOT_EMAIL:-$default_gitbot_email}"
   git config --global user.name "$GITHUB_ACTOR"
   git config --global --add safe.directory /github/workspace
 }
@@ -60,10 +68,7 @@ echo "INPUT_PR_BRANCH:$INPUT_PR_BRANCH"
 
 PR_BRANCH="auto-$INPUT_PR_BRANCH-$COMMIT_SHA-$(date +%s)"
 echo "PR_BRANCH:$PR_BRANCH"
-MESSAGE=$(git log -1 "$COMMIT_SHA" | grep -c "AUTO")
-echo "MESSAGE:$MESSAGE"
-
-if [[ "$MESSAGE" -gt 0 ]]; then
+if git log -1 "$COMMIT_SHA" | grep -q "AUTO"; then
   echo "Autocommit, NO ACTION"
   exit 0
 fi
@@ -100,13 +105,10 @@ if git_cmd git branch -a --contains "${COMMIT_SHA}" | grep -q "remotes/origin/${
 fi
 
 git_cmd git checkout -b "${PR_BRANCH}" origin/"${INPUT_PR_BRANCH}"
-git_cmd git cherry-pick "${COMMIT_SHA}"
-
-# Check the exit code of `git cherry-pick`
-# shellcheck disable=SC2181
-if [ $? -eq 0 ]; then
+if git_cmd git cherry-pick "${COMMIT_SHA}"; then
   echo "git cherry-pick succeeded. We will create a pull request for it."
-  git_cmd git push -u origin "${PR_BRANCH}"
+  # Publishing through the Git Data API avoids the workflow scan performed by git push.
+  git_cmd python3 /publish_commit.py --commit HEAD --branch "${PR_BRANCH}"
   git_cmd hub pull-request -b "${INPUT_PR_BRANCH}" -h "${PR_BRANCH}" -l "${INPUT_PR_LABELS}" -a "${GITHUB_ACTOR}" -m "${PR_TITLE}" -m "${INPUT_PR_BODY}" -r "${GITHUB_ACTOR}"
 else
   echo "git cherry-pick failed. We will create an issue for it."

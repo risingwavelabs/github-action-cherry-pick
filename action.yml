@@ -1,5 +1,5 @@
 name: 'Create PR to other branches, on commits to a branch'
-description: 'Commits, pushes a new PR branch and creates PR for the commits.'
+description: 'Cherry-picks a commit, publishes a PR branch and creates a pull request.'
 author: '@himadrisingh'
 inputs:
   pr_branch:
