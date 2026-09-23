@@ -68,6 +68,13 @@ Using the Git Data API avoids GitHub's server-side workflow scan on `git push` w
 preserving the exact tree produced by the local cherry-pick. The action verifies the
 remote tree SHA before it creates the branch reference.
 
+## Tests
+
+Run `make test` to build the action image and run its unit and entrypoint regression
+tests in a disposable container with networking disabled. The entrypoint tests mock
+GitHub and Git commands; they never create remote issues, PRs, or branches. They are
+skipped outside the test container because the real entrypoint writes Git credentials.
+
 ## Example usage
 
 In this example, all the merges to the branch `0.1.0` will create a PR on `0.1.X` branch too. 

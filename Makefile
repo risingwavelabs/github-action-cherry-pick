@@ -7,6 +7,12 @@ DRY_RUN ?= false
 build:
 	docker build -t ${IMAGE}:${TAG} .
 
+.PHONY: test
+test: build
+	docker run --rm --network none --entrypoint python3 \
+		-e CHERRY_PICK_TEST_CONTAINER=1 -v "$(CURDIR):/work:ro" -w /work \
+		${IMAGE}:${TAG} -B -m unittest discover -s tests -v
+
 .PHONY: run
 run:
 	docker run -e GITHUB_TOKEN=${GITHUB_TOKEN} \

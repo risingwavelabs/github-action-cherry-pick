@@ -91,8 +91,8 @@ if [[ -z "${SOURCE_PR_NUMBER}" && "${INPUT_PR_BODY}" =~ Cherry[[:space:]]+pickin
   SOURCE_PR_NUMBER="${BASH_REMATCH[1]}"
 fi
 
-# Add GITHUB_SHA to the PR/issue body
-INPUT_PR_BODY=$(printf "%s\n\nThis PR/issue was created by cherry-pick action from commit %s.", "${INPUT_PR_BODY}", "${COMMIT_SHA}")
+# Add the selected commit SHA to the PR/issue body.
+INPUT_PR_BODY=$(printf "%s\n\nThis PR/issue was created by cherry-pick action from commit %s." "${INPUT_PR_BODY}" "${COMMIT_SHA}")
 
 git_setup
 git_cmd git remote update
