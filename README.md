@@ -15,7 +15,7 @@ developers works on but we want to push the changes to the Release branches too.
 * Create a new pr branch Z on the branch Y
 * Cherry Pick the commits from X into Z
 * If the cherry-pick succeeds, publish the branch through the Git Data API and create the PR on base Y
-* If the cherry-pick conflicts, create an issue with conflict-resolution instructions and assign it to Jarvis instead
+* If the cherry-pick conflicts, create an issue with conflict-resolution instructions and assign it to Copilot instead
 * PR title will be prefixed with `AUTO`
 
 #### Conditions:
