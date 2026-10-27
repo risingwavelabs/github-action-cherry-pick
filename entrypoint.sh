@@ -116,13 +116,13 @@ Run \`git cherry-pick ${COMMIT_SHA}\` first, then resolve any conflicts. Avoid u
     echo "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees"
     # https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-agent-apps#starting-an-agent-from-an-issue
     # https://hub.github.com/hub-api.1.html
-    hub api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
-      "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees" --input - <<< '{
-      "assignees": ["copilot-swe-agent[bot]"],
-      "agent_assignment": {
-        "custom_instructions": "Do not edit yourself before using `git cherry-pick` first. Then resolve conflict. Avoid unnecessary improvements and keep the diff as close to original as possible",
-        "base_branch": "'"${INPUT_PR_BRANCH}"'"
-      }
-    }' || echo "::warning::Could not assign issue #${ISSUE_NUMBER} to Copilot"
+    # hub api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
+    #   "/repos/{owner}/{repo}/issues/${ISSUE_NUMBER}/assignees" --input - <<< '{
+    #   "assignees": ["copilot-swe-agent[bot]"],
+    #   "agent_assignment": {
+    #     "custom_instructions": "Do not edit yourself before using `git cherry-pick` first. Then resolve conflict. Avoid unnecessary improvements and keep the diff as close to original as possible",
+    #     "base_branch": "'"${INPUT_PR_BRANCH}"'"
+    #   }
+    # }' || echo "::warning::Could not assign issue #${ISSUE_NUMBER} to Copilot"
   fi
 fi
